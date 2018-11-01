@@ -4,14 +4,13 @@ A general class for single-dataset analysis, which can be overloaded by many mod
 import numpy as np
 from scipy.signal import savgol_filter
 import sys
-sys.path.append('/home/sillycat/Programming/Python/CalAnalysis')
+sys.path.append('/home/sillycat/Programming/Python/CalAnalyzer/')
 import os
 import glob
 from df_f import dff_AB, activity_level
-from src.shared_funcs.numeric_funcs import gaussian1d_fit
 from scipy.stats import norm, kruskal, mannwhitneyu# two non-parametric tests
 from scipy.interpolate import interp1d
-import src.visualization.signal_plot as signal_plot
+import CalAnalyzer.visualization.signal_plot as signal_plot
 import clustering
 import matplotlib.pyplot as plt
 global_datapath_ubn = '/home/sillycat/Programming/Python/data_test/FB_resting_15min/Aug2018/homo/'
@@ -96,6 +95,7 @@ class grinder(object):
                     self.key_stat = self.neuron_label.sum(axis = 0) # the total number of neurons in that mask
                 else:
                     self.annotated = False
+                    self.neuron_label = None
 
             except OSError:
                 print("Unable to open the file.")
