@@ -2,11 +2,8 @@
 A class that does spectral clustering on large datasets using the divide-and-conquer strategy.
 Last update by Dan on 09/20/2018.
 '''
-root_path = '/home/sillycat/Programming/Python/Image_toolbox/'
-import sys
-sys.path.append(root_path)
 import numpy as np
-from spectral_clustering import Corr_sc, label_assignment
+from CalAnalyzer.spectral_clustering import Corr_sc, label_assignment
 import matplotlib.pyplot as plt
 from collections import deque
 from src.visualization import cluster_navigation

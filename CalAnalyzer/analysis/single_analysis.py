@@ -4,14 +4,12 @@ A general class for single-dataset analysis, which can be overloaded by many mod
 import numpy as np
 from scipy.signal import savgol_filter
 import sys
-sys.path.append('/home/sillycat/Programming/Python/CalAnalyzer/')
 import os
 import glob
-from df_f import dff_AB, activity_level
+from CalAnalyzer.analysis.df_f import dff_AB, activity_level
 from scipy.stats import norm, kruskal, mannwhitneyu# two non-parametric tests
 from scipy.interpolate import interp1d
 import CalAnalyzer.visualization.signal_plot as signal_plot
-import clustering
 import matplotlib.pyplot as plt
 global_datapath_ubn = '/home/sillycat/Programming/Python/data_test/FB_resting_15min/Aug2018/homo/'
 

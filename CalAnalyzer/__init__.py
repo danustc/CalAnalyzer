@@ -1,3 +1,1 @@
-from . import analysis
-from . import visualization
-from . import GUI
+__all__ = ['analysis', 'GUI', 'visualization']

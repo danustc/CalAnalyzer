@@ -2,15 +2,13 @@
 Sample script: clustering of a large group of neurons
 '''
 import numpy as np
-import sys
-sys.path.append('/home/sillycat/Programming/Python/Image_toolbox')
 import os
-from src.analysis.single_analysis import grinder
-import src.analysis.spectral_clustering as sc
+from CalAnalyzer.analysis.single_analysis import grinder
+import CalAnalyzer.analysis.spectral_clustering as sc
 import matplotlib.pyplot as plt
-from hierachical_sc import hrc_sc
-from src.visualization.signal_plot import compact_dffplot, dff_rasterplot
-from src.visualization.cluster_navigation import multi_cluster_show
+from CalAnalyzer.analysis.hierachical_sc import hrc_sc
+from CalAnalyzer.visualization.signal_plot import compact_dffplot, dff_rasterplot
+from CalAnalyzer.visualization.cluster_navigation import multi_cluster_show
 import tifffile as tf
 from spatial import coord_cluster
 import glob
