@@ -18,4 +18,3 @@ def label_scatter(mask_counts, color = 'coral'):
 
 #label_scatter()
 
-

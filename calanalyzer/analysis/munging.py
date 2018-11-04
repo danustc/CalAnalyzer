@@ -13,6 +13,14 @@ import src.analysis.clustering as clustering
 from scipy.stats import norm
 
 
+def vox_coordinates(coords, r_range,  grid_size = (20.0, 20.0, 20.0)):
+    '''
+    convert coordinates into voxel indices
+    '''
+
+
+
+
 def interleave(mat1, mat2, direction = 'c'):
     '''
     interleave two matrices either by row or by columns. default by column.
@@ -132,5 +140,6 @@ def stimuli_trigger_arbitrary(dt, NT, t_sti, d_sti, t_shift = 0., mode = 'q'):
             sig_sti[nt:nt+3*t_duration]=a*np.exp(-np.arange(3*t_duration)*dt)+b
 
     return sig_sti
+
 
 

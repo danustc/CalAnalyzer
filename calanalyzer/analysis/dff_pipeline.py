@@ -3,14 +3,12 @@ Created by Dan on 07/11/2017.
 Pipeline for batch calculation of raw_f into Delta F/F.
 Last update: 08/12/2018, removed simple var sorting.
 '''
-import sys
 import os
 import glob
 import numpy as np
 import h5py
-from df_f import *
-from munging import coord_edgeclean
-import matplotlib.pyplot as plt
+from .df_f import *
+from .munging import coord_edgeclean
 
 global_datapath_ubn  = '/home/sillycat/Programming/Python/data_test/'
 portable_datapath = '/media/sillycat/DanData/'

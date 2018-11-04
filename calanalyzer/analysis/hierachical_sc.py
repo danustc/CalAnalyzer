@@ -3,10 +3,9 @@ A class that does spectral clustering on large datasets using the divide-and-con
 Last update by Dan on 09/20/2018.
 '''
 import numpy as np
-from CalAnalyzer.spectral_clustering import Corr_sc, label_assignment
+from .spectral_clustering import Corr_sc, label_assignment
 import matplotlib.pyplot as plt
 from collections import deque
-from src.visualization import cluster_navigation
 
 def smart_partition(NC, n_group, last_big = True):
     arr = np.arange(NC)

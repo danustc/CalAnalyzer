@@ -6,12 +6,12 @@ from scipy.signal import savgol_filter
 import sys
 import os
 import glob
-from CalAnalyzer.analysis.df_f import dff_AB, activity_level
+from calanalyzer.analysis.df_f import dff_AB, activity_level
 from scipy.stats import norm, kruskal, mannwhitneyu# two non-parametric tests
 from scipy.interpolate import interp1d
-import CalAnalyzer.visualization.signal_plot as signal_plot
+import calanalyzer.visualization.signal_plot as signal_plot
 import matplotlib.pyplot as plt
-global_datapath_ubn = '/home/sillycat/Programming/Python/data_test/FB_resting_15min/Aug2018/homo/'
+global_datapath_ubn = '/home/sillycat/Programming/Python/data_test/FB_resting_15min/Jul2017/'
 
 def bool2str(bool_arr):
     '''
@@ -93,6 +93,7 @@ class grinder(object):
                     self.key_stat = self.neuron_label.sum(axis = 0) # the total number of neurons in that mask
                 else:
                     self.annotated = False
+                    self.keys = None
                     self.neuron_label = None
 
             except OSError:
@@ -411,7 +412,7 @@ def main():
         ind = np.arange(grinder_core.NC)[acceptance]
         ind_comp = np.arange(grinder_core.NC)[~acceptance]
         grinder_core.background_suppress(sup_coef = 0.0)
-        #grinder_core._trim_data_(acceptance)
+        grinder_core._trim_data_(acceptance)
         grinder_core.saveas()
 
 

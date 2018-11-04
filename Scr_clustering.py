@@ -3,34 +3,45 @@ Sample script: clustering of a large group of neurons
 '''
 import numpy as np
 import os
-from CalAnalyzer.analysis.single_analysis import grinder
-import CalAnalyzer.analysis.spectral_clustering as sc
+from calanalyzer.analysis.single_analysis import grinder
+import calanalyzer.analysis.spectral_clustering as sc
 import matplotlib.pyplot as plt
-from CalAnalyzer.analysis.hierachical_sc import hrc_sc
-from CalAnalyzer.visualization.signal_plot import compact_dffplot, dff_rasterplot
-from CalAnalyzer.visualization.cluster_navigation import multi_cluster_show
+from calanalyzer.analysis.hierachical_sc import hrc_sc
+from calanalyzer.visualization.signal_plot import compact_dffplot, dff_rasterplot
+from calanalyzer.visualization.cluster_navigation import multi_cluster_show
 import tifffile as tf
-from spatial import coord_cluster
+from calanalyzer.analysis.spatial import coord_cluster
 import glob
+import scipy as sp
+from sklearn.neighbors import BallTree
 
 global_datapath_ubn = '/home/sillycat/Programming/Python/data_test/FB_resting_15min/'
 portable_datapath = '/media/sillycat/DanData/'
 
 
 def scratch():
-    data_path = glob.glob(global_datapath_ubn + 'Jul2017/Jul19_2017_B5_ref_cleaned.npz')
+    data_path = glob.glob(global_datapath_ubn + 'Jul2017/Jul19_2017_B3_ref_cleaned.npz')
     dff_data = np.load(data_path[0])
-    signal_test = dff_data['signal'][10:,:1000]
+    signal_test = dff_data['signal'][10:,:200]
+
+    tree = BallTree(signal_test.T, leaf_size = 10, metric = sp.spatial.distance.correlation)
+
+
 
     ccc = sc.Corr_sc()
     ccc.load_data(signal_test)
-    ccc.link_evaluate(sca = 1.10)
+    ccc.link_evaluate(sca = 1.15)
     ccc.affinity()
     pk, fig_eig = ccc.laplacian_evaluation()
     fig_eig.savefig('eigen')
     affi_mat = ccc.affi_mat
-    L = sc.laplacian(affi_mat, mode = 'sym')
-    w,v = sc.sc_eigen(L)
+    L, D = sc.laplacian(affi_mat, mode = 'un')
+    w,v = sc.sc_eigen(L, DM = D)
+    NR, NV = v.shape
+    print(NR, NV)
+    plt.close('all')
+    plt.plot(v[:,:4])
+    plt.show()
 
 
 

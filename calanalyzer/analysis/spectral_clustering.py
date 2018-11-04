@@ -5,13 +5,38 @@ My practice of spectral clustering, written from scratch
 import numpy as np
 import scipy.sparse.linalg as linalg
 from scipy.signal import argrelextrema
+from scipy.spatial.distance import correlation
 from sklearn.cluster import KMeans, SpectralClustering
+from sklearn.neighbors import BallTree
 import matplotlib.pyplot as plt
 from collections import deque
 
 
 def symmetric(mat, tol = 1.0e-08):
     return np.allclose(mat, mat.T, atol = tol)
+
+# --------------------Below are key functions for spectral clustering steps -------------------
+
+
+def corr_to_simmilarity(cm, order = 2, mode = 'Gauss', gamma = 1.):
+    '''
+    Map correlation coefficient to distance.
+    '''
+    dist = -order*np.log(cm) # mapping (0,1) to (inf, 0)
+    if mode == 'Gauss':
+        sim = np.exp(-gamma * dist**2)
+
+    return sim
+
+
+def knn_affinity(X, NK = None):
+    '''
+    NK: k of nearest neighbor.
+    '''
+    NC = sim.shape[0] # number of 
+
+
+
 
 
 def laplacian(W, mode = 'un'):
@@ -28,25 +53,23 @@ def laplacian(W, mode = 'un'):
     D_isq = np.diag(1./(D_sum**0.5))
     if mode =='sym':
         L_sym = np.dot(D_isq, L).dot(D_isq)
-        return L_sym
+        return L_sym, D
     elif mode == 'rw':
         # warning: the eigen value of L_rw is not all non-negative. I need to double check the tutorial.
         L_rw = np.diag(1./D_sum).dot(L)
-        return L_rw
+        return L_rw, D
     else:
-        return L
+        return L, D
 
 
-def sc_eigen(L, n_cluster = 20):
+def sc_eigen(L, n_cluster = 20, DM = None):
     '''
     compute the embedding space of L and cluster. L can be unnormalized or normalized.
     '''
-    w, v = linalg.eigsh(L, k = n_cluster, which = 'SA') # compute the 1st n_cluster smallest eigenvalues and eigenvectors.
+    w, v = linalg.eigsh(L, k = n_cluster, M = DM, sigma = 0, which = 'LM') # compute the 1st n_cluster smallest eigenvalues and eigenvectors. Shift-invert mode.
     print("representing eigenvalues:", w[:n_cluster])
 
     return w, v
-
-
 
 
 
@@ -140,6 +163,21 @@ class Corr_sc(object):
         else:
             print("No data loaded.")
 
+    def knn_dist(self, NK):
+        '''
+        calculate K-nearest neighbors, distance is based on correlation.
+        '''
+        X = self.data.T
+        tree = BallTree(X) # Row: measurements; col: dimensions
+        tree.query()
+        dist, ind = tree.query(X, k = NK+1, return_distance = True) # NK+1 instead of NK
+
+        connect_map = np.zeros((self.NC, self.NC), dtype = 'bool')
+        connect_map[ind]
+
+
+
+
     def link_evaluate(self, histo = False, sca = 1.150):
         '''
         Evaluate how densely/intensely this graph is linked
@@ -160,7 +198,7 @@ class Corr_sc(object):
         #self.link_evaluate() # Do I need this extra link_evaluate?
 
 
-    def affinity(self, thresh = None):
+    def affinity(self, thresh = None, mode = 'linear'):
         '''
         calculate affinity matrix.
         '''
@@ -181,8 +219,8 @@ class Corr_sc(object):
 
     def laplacian_evaluation(self, plotout = True, ncl = 25):
 
-        L = laplacian(self.affi_mat, mode = 'rw') # use the random-walk normalized Laplacian instead of unnormalized version.   
-        w, v = sc_eigen(L, n_cluster = ncl) # calculate the first 20th eigen values and eigen states
+        L, D = laplacian(self.affi_mat, mode = 'un') # use the random-walk normalized Laplacian instead of unnormalized version.   
+        w, v = sc_eigen(L, n_cluster = ncl, DM = D) # calculate the first 20th eigen values and eigen states
         peak_position = leigen_nclusters(w) # where should I cut off?
         if plotout:
             fig_plot = plt.figure(figsize = (6,3))
