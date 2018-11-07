@@ -1,7 +1,7 @@
 '''
 This is Dan's first setup.py test! Hopefully it would work.
+Big Question: Can I cythonize this?
 '''
-
 from setuptools import setup, find_packages
 
 setup(name = 'CalAnalyzer',

@@ -6,12 +6,13 @@ from scipy.signal import savgol_filter
 import sys
 import os
 import glob
+import tifffile as tf
 from calanalyzer.analysis.df_f import dff_AB, activity_level
 from scipy.stats import norm, kruskal, mannwhitneyu# two non-parametric tests
 from scipy.interpolate import interp1d
 import calanalyzer.visualization.signal_plot as signal_plot
 import matplotlib.pyplot as plt
-global_datapath_ubn = '/home/sillycat/Programming/Python/data_test/FB_resting_15min/Jul2017/'
+global_datapath_ubn = '/home/sillycat/Programming/Python/data_test/FB_resting_15min/Aug2018/'
 
 def bool2str(bool_arr):
     '''
@@ -45,6 +46,8 @@ class grinder(object):
         self.coord = self.coord[ind_trim,:]
         if self.annotated:
             self.neuron_label = self.neuron_label[ind_trim, :]
+        if self.raw_coord is not None:
+            self.raw_coord = self.raw_coord[ind_trim]
 
     def _get_size_(self):
         '''
@@ -95,6 +98,11 @@ class grinder(object):
                     self.annotated = False
                     self.keys = None
                     self.neuron_label = None
+
+                if 'raw_coord' in data_pz.keys():
+                    self.raw_coord = data_pz['raw_coord']
+                else:
+                    self.raw_coord = None
 
             except OSError:
                 print("Unable to open the file.")
@@ -387,7 +395,7 @@ class grinder(object):
         '''
         if newpath is None:
             newpath = global_datapath_ubn + self.basename + '_cleaned'
-        cleaned_dataset = {'coord':self.coord, 'signal':self.signal, 'annotation':self.neuron_label, 'masks':self.keys}
+        cleaned_dataset = {'coord':self.coord, 'signal':self.signal, 'annotation':self.neuron_label, 'masks':self.keys, 'raw_coord':self.raw_coord}
         np.savez(newpath, **cleaned_dataset)
 
 
@@ -400,7 +408,8 @@ def main():
     '''
     some initial munging of the datasets.
     '''
-    data_list  = glob.glob(global_datapath_ubn + '*_ref.npz')
+    data_list  = glob.glob(global_datapath_ubn + '*_ref_lb.npz')
+    #vol_img = tf.imread(global_datapath_ubn+'MAX_Aug23_B4_ref.tif')
     grinder_core = grinder()
 
     for data_path in data_list:
@@ -412,7 +421,7 @@ def main():
         ind = np.arange(grinder_core.NC)[acceptance]
         ind_comp = np.arange(grinder_core.NC)[~acceptance]
         grinder_core.background_suppress(sup_coef = 0.0)
-        grinder_core._trim_data_(acceptance)
+        #grinder_core._trim_data_(acceptance)
         grinder_core.saveas()
 
 

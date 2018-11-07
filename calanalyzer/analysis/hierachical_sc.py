@@ -69,21 +69,20 @@ class hrc_sc(object):
             self.group_partition.append(neuron_ind)
             sg_data = self.signal[:,neuron_ind] # takeout a subgroup of data
             sc_holder.load_data(sg_data)
-            sc_holder.link_evaluate(sca = 1.050)
-            sc_holder.affinity()
+            sc_holder.link_evaluate(sca = 1.08)
+            sc_holder.affinity(mode = 'cut')
             self.group_cstat[gg, 0] = sc_holder.thresh
 
             cluster_peak, fig_plot = sc_holder.laplacian_evaluation()
             print("suggested number of clusters:", cluster_peak)
 
-            fig_plot.show()
+            #fig_plot.show()
 
             if interactive:
                 n_cl = int(input("Enter the number of clusters: "))
             else:
                 # figure the position of peak
                 n_cl = cluster_peak
-                plt.pause(1)
 
             plt.close(fig_plot)
             self.group_cstat[gg,1] = n_cl
@@ -147,16 +146,15 @@ class hrc_sc(object):
         sc_holder = Corr_sc()
         sc_holder.load_data(cl_average)
         cmat = sc_holder.corr_mat
-        plt.imshow(cmat)
-        plt.show()
-        plt.pause(1)
-        plt.close()
+        #plt.imshow(cmat)
+        #plt.show()
+        #plt.pause(1)
+        #plt.close()
         sc_holder.link_evaluate(sca = 1.80)
-        sc_holder.affinity()
-        cluster_peak, fig_plot = sc_holder.laplacian_evaluation(ncl = 30)
-        fig_plot.show()
+        sc_holder.affinity(mode = 'cut')
+        cluster_peak, fig_plot = sc_holder.laplacian_evaluation(ncl = 25)
+        #fig_plot.show()
         self.n_supgroup = cluster_peak
-        plt.pause(1)
         plt.close(fig_plot)
         sc_holder.clustering(self.n_supgroup)
         cluster_corrgroup = sc_holder.ind_groups

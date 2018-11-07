@@ -1,15 +1,25 @@
 '''
 My practice of spectral clustering, written from scratch
 '''
-
 import numpy as np
 import scipy.sparse.linalg as linalg
+from scipy import stats
 from scipy.signal import argrelextrema
 from scipy.spatial.distance import correlation
 from sklearn.cluster import KMeans, SpectralClustering
-from sklearn.neighbors import BallTree
 import matplotlib.pyplot as plt
 from collections import deque
+
+def knn_dumbest(dist_mat, NK):
+    NC = dist_mat.shape[0]
+
+    query = np.zeros([NC, NK])
+    for cc in range(NC):
+        ind = np.argsort(dist_mat[cc])
+        query[cc] = ind[:NK]
+
+    return query.astype('uint16')
+
 
 
 def symmetric(mat, tol = 1.0e-08):
@@ -18,24 +28,16 @@ def symmetric(mat, tol = 1.0e-08):
 # --------------------Below are key functions for spectral clustering steps -------------------
 
 
-def corr_to_simmilarity(cm, order = 2, mode = 'Gauss', gamma = 1.):
+def corr_to_similarity(cm, mode = 'Gauss', gamma = 1.):
     '''
     Map correlation coefficient to distance.
     '''
-    dist = -order*np.log(cm) # mapping (0,1) to (inf, 0)
+    dist = np.tan(0.5*np.pi*(1. - cm)) # the distance matrix
+    #dist = -order*np.log(cm) # mapping (0,1) to (inf, 0)
     if mode == 'Gauss':
         sim = np.exp(-gamma * dist**2)
 
     return sim
-
-
-def knn_affinity(X, NK = None):
-    '''
-    NK: k of nearest neighbor.
-    '''
-    NC = sim.shape[0] # number of 
-
-
 
 
 
@@ -163,20 +165,6 @@ class Corr_sc(object):
         else:
             print("No data loaded.")
 
-    def knn_dist(self, NK):
-        '''
-        calculate K-nearest neighbors, distance is based on correlation.
-        '''
-        X = self.data.T
-        tree = BallTree(X) # Row: measurements; col: dimensions
-        tree.query()
-        dist, ind = tree.query(X, k = NK+1, return_distance = True) # NK+1 instead of NK
-
-        connect_map = np.zeros((self.NC, self.NC), dtype = 'bool')
-        connect_map[ind]
-
-
-
 
     def link_evaluate(self, histo = False, sca = 1.150):
         '''
@@ -191,26 +179,64 @@ class Corr_sc(object):
             self.thresh = sca*wk_link[-1]
         print("The threshold:", self.thresh)
 
-    def load_data(self, new_data):
+    def load_data(self, new_data, neg_rect = 1.0e-09):
         self.data = new_data
         self.NT, self.NC = new_data.shape
         self.corr_mat = np.corrcoef(new_data.T)
+        if neg_rect is not None:
+            self.corr_mat[self.corr_mat < 0] = neg_rect
+
         #self.link_evaluate() # Do I need this extra link_evaluate?
 
 
-    def affinity(self, thresh = None, mode = 'linear'):
+    def affinity(self, thresh = None, mode = 'adapt', NK = 0, Niter = 3):
         '''
         calculate affinity matrix.
+        mode == 'linear': just use the correlation matrix as the affinity, cut off at the threshold
+        mode == 'Gauss': map (-1, 1) to (inf, 0) first, then calculate affinity using gaussian function.
         '''
-        affi_mat = np.copy(self.corr_mat)
         if thresh is None:
             try:
                 thresh = self.thresh
             except AttributeError:
                 print("The default threshold is not set.")
                 return
+        if mode == 'cut':
+            affi_mat = np.copy(self.corr_mat)
+            affi_mat[affi_mat < thresh] = 1.0e-09
 
-        affi_mat[affi_mat < thresh] = 1.0e-09
+        elif mode == 'adapt':
+            '''
+            set the threshold for each neuron.
+            '''
+            act_mat = np.ones((self.NC, self.NC))*1.0e-09
+            for cc in range(self.NC):
+                '''
+                fit the histogram to Gaussian, cut of at sigma
+                '''
+                corr_trace = self.corr_mat[cc]
+                m,s = stats.norm.fit(corr_trace[corr_trace < 0.6])
+                for ii in range(Niter):
+                    m,s = stats.norm.fit(corr_trace[corr_trace < m+3*s])
+
+                print("cutoff:", m+2*s)
+                ind = corr_trace > (m+3*s)
+
+                act_mat[cc, ind] = 1.
+                act_mat[ind, cc] = 1.
+
+            affi_mat = self.corr_mat*act_mat
+        if NK>0: # perform K-nearest neighbor
+            act_mat = np.zeros((self.NC, self.NC))
+            dist_mat = 1.-self.corr_mat
+            knn_query = knn_dumbest(dist_mat, NK)
+
+            for kk in range(1,NK):
+                act_mat[knn_query[:,0],knn_query[:,kk]] = 1.
+                act_mat[knn_query[:,kk],knn_query[:,0]] = 1.
+
+            affi_mat = affi_mat*act_mat
+
         if not(symmetric(affi_mat)):
             affi_mat = (affi_mat+affi_mat.T)*0.5
 

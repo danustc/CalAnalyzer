@@ -6,7 +6,6 @@ Function: navigate a stack of images and display cells across the stack.
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-from src.preprocessing.stack_operations import stack_section
 from mpl_toolkits.mplot3d import Axes3D
 
 global_ccode = 'grbmcyk'
@@ -99,8 +98,6 @@ class region_view(object):
             pxl_position = self.pxl*slice_position
         else:
             pxl_position = slice_position
-        im_section = stack_section(self.refim, pxl_position, view)
-        ax.imshow(im_section, cmap = 'Greys_r')
         # done with show_grey_slice
 
     def fig_resize(self, new_size):
