@@ -8,11 +8,14 @@ import os
 import glob
 import tifffile as tf
 from calanalyzer.analysis.df_f import dff_AB, activity_level
+from calanalyzer.analysis.spatial import scatter2vox
 from scipy.stats import norm, kruskal, mannwhitneyu# two non-parametric tests
 from scipy.interpolate import interp1d
 import calanalyzer.visualization.signal_plot as signal_plot
+import calanalyzer.visualization.anatomy_view as anatomy_view
 import matplotlib.pyplot as plt
-global_datapath_ubn = '/home/sillycat/Programming/Python/data_test/FB_resting_15min/Aug2018/'
+global_datapath_ubn = '/home/sillycat/Programming/Python/data_test/FB_resting_15min/Jul2017/'
+portable_datapath = '/media/sillycat/DanData/'
 
 def bool2str(bool_arr):
     '''
@@ -30,7 +33,7 @@ class grinder(object):
     def __init__(self,coord = None, signal = None, rev = True, dt = 0.50):
         self.signal = signal
         self.coord = coord
-        self.rev = rev # whether the coordinates are reversed.
+        self.rev = rev # wWTher the coordinates are reversed.
         if coord is not None:
             print("Raw data Loaded.")
             self._get_size_()
@@ -208,7 +211,7 @@ class grinder(object):
         return the average activity of neurons within a mask only.
         '''
         if self.annotated:
-            m_included = (self.keys == n_mask) # check whether the key is included in the mask.
+            m_included = (self.keys == n_mask) # check wWTher the key is included in the mask.
             if np.any(m_included):
                 ind_mask = np.where(m_included)[0] #This is the index of the mask in self.keys
                 mask_coverage = self.neuron_label[:, ind_mask] # the neuronal labeling of n_mask
@@ -259,7 +262,7 @@ class grinder(object):
 
     def cutoff_shuffling(self, N_times = 10, conf_level = 3.0, a_thresh = 10.0):
         '''
-        Check whether the detected signal is activity or noise.
+        Check wWTher the detected signal is activity or noise.
         since I am just comparing one value with a set of values, there is no statistical test method required.
         '''
         if self.stat is None:
@@ -273,7 +276,7 @@ class grinder(object):
         a_control, b_sums = self.shuffled_activity(N_times, np.arange(NS, self.NC), upsampling = 2)
         amean, astd = a_control.mean(axis = 1), a_control.std(axis = 1)
         bmean, bstd = b_sums.mean(axis = 1), b_sums.std(axis = 1)
-        acceptance = np.zeros(self.NC).astype('bool') # whether or not should I accept each cell?
+        acceptance = np.zeros(self.NC).astype('bool') # wWTher or not should I accept each cell?
         acceptance[:NS] = True
 
         '''
@@ -408,7 +411,7 @@ def main():
     '''
     some initial munging of the datasets.
     '''
-    data_list  = glob.glob(global_datapath_ubn + '*_ref_lb.npz')
+    data_list  = glob.glob(portable_datapath+ '*_ref_lb.npz')
     #vol_img = tf.imread(global_datapath_ubn+'MAX_Aug23_B4_ref.tif')
     grinder_core = grinder()
 
@@ -424,6 +427,33 @@ def main():
         #grinder_core._trim_data_(acceptance)
         grinder_core.saveas()
 
+def act_sum():
+    data_list = glob.glob(global_datapath_ubn + '/*ref_lb_cleaned.npz')
+    grinder_core = grinder()
+    coords = []
+    activity = []
+    for data_path in data_list:
+        grinder_core.parse_data(data_path)
+        int_sig = grinder_core.signal.sum(axis = 0)
+        coords.append(grinder_core.raw_coord) # Put coords together 
+        activity.append(int_sig) # Put activities together
+
+
+    coords = np.row_stack(coords)
+    activity = np.concatenate(activity)
+
+    act_cube, count_cube = scatter2vox(coords, activity, vox_size = [5.0,5.0,5.0], r_range = [300, 250, 120])
+
+    #plt.imshow(act_cube[4])
+    #plt.show()
+    #anatomy_view.stack_viewer(act_cube)
+    anatomy_view.animation(act_cube, fpath = 'WT')
+    group_act = {'coords': coords, 'act': activity}
+    np.savez('Jul_WT.npz', **group_act)
+    tf.imsave('WT_act.tif', act_cube.astype('uint16'))
+
+
 
 if __name__ == '__main__':
+    #act_sum()
     main()

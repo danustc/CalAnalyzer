@@ -46,4 +46,41 @@ def dist_pointcloud(coords, x_range, y_range, dbin = 0.30, smooth_sig = 1.0 ):
 
 
 
+def scatter2vox(coords, activities, vox_size, r_range ):
+    '''
+    convert coordinates of scatter points into voxels and calculate mean intensities.
+    coords: coordinates ordered in x,y,z.
+    vox_size: dx, dy, dz
+    '''
+    xx, yy, zz = coords[:,0], coords[:,1], coords[:,2]
+    dx, dy, dz = vox_size
+    RX, RY, RZ = r_range
+
+    NC = len(coords) # the number of neurons
+
+    NX = int(RX//dx)
+    NY = int(RY//dy)
+    NZ = int(RZ//dz)
+
+    lx = np.arange(NX+1)*dx
+    ly = np.arange(NY+1)*dy
+    lz = np.arange(NZ+1)*dz
+
+    IX = np.searchsorted(lx[:-1], xx)
+    IY = np.searchsorted(ly[:-1], yy)
+    IZ = np.searchsorted(lz[:-1], zz)
+
+    act_cube = np.zeros((NZ+1, NY+1, NX+1))
+    count_cube = np.ones((NZ+1, NY+1, NX+1)) + 1.0e-06
+
+    for cc in range(NC):
+        ind_x, ind_y, ind_z = IX[cc], IY[cc], IZ[cc]
+        act_cube[ind_z, ind_y, ind_x] +=activities[cc]
+        count_cube[ind_z, ind_y, ind_x] +=1
+
+    act_cube = act_cube/count_cube
+    count_cube = count_cube.astype('int')
+    return act_cube, count_cube
+
+        # also
 

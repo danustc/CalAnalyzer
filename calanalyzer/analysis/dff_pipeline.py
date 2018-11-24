@@ -7,8 +7,8 @@ import os
 import glob
 import numpy as np
 import h5py
-from .df_f import *
-from .munging import coord_edgeclean
+from calanalyzer.analysis.df_f import *
+from calanalyzer.analysis.munging import coord_edgeclean
 
 global_datapath_ubn  = '/home/sillycat/Programming/Python/data_test/'
 portable_datapath = '/media/sillycat/DanData/'
@@ -213,8 +213,8 @@ class pipeline(object):
 def main_rawf():
     #data_folder = 'FB_resting_15min/Jul2017/'
     #data_folder = 'FB_resting_15min/Aug02_2018/'
-    raw_list = glob.glob(global_datapath_win +'*_merged.npz')
-    #raw_list = glob.glob(portable_datapath+'Jul*merged.npz')
+    #raw_list = glob.glob(global_datapath_win +'*_merged.npz')
+    raw_list = glob.glob(portable_datapath+'Jul*merged.npz')
     for raw_file in raw_list:
         acquisition_date = '_'.join(os.path.basename(raw_file).split('.')[0].split('_')[:-1])
         raw_data = np.load(raw_file)
@@ -224,7 +224,7 @@ def main_rawf():
         ppl.baseline_cleaning(bcut = 160.0)
         ppl.dff_calc(ft_width = 6, filt = True)
         ppl.valid_check(df_th = 6.)
-        ppl.save_cleaned_dff(global_datapath_win + acquisition_date + '_dff')
+        ppl.save_cleaned_dff(portable_datapath + acquisition_date + '_dff')
         print("Finished processing:", acquisition_date)
 
 def main_dff():

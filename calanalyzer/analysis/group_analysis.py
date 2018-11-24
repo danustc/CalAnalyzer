@@ -2,9 +2,7 @@
 A general class for multiple dataset analysis.
 """
 
-import sys
-sys.path.append('/home/sillycat/Programming/Python/Image_toolbox')
-import src.visualization.anatomy_view as anview
+import calanalyzer.visualization.anatomy_view as anview
 import numpy as np
 from single_analysis import grinder
 import os
@@ -95,6 +93,7 @@ class mass_grinder(object):
         '''
         for g in self.grinder_arr:
             g.activity_sorting(sort = False)
+            act = g.stat[:,-1]
             print("Finished calculating activities of the fish:", g.basename)
 
 
@@ -180,6 +179,12 @@ class mass_grinder(object):
         activity_stat = DF(mask_mean, index = double_inds, columns = mask_abvs)
 
         return activity_stat
+
+
+    def merge_activity(self):
+        '''
+        merge the activity and coordinates of the same group.
+        '''
 
 
 

@@ -9,7 +9,6 @@ import numpy as np
 import pyfftw
 import scipy.fftpack as fftpack
 from scipy import signal
-import src.analysis.clustering as clustering
 from scipy.stats import norm
 
 
