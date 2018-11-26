@@ -12,13 +12,6 @@ from scipy import signal
 from scipy.stats import norm
 
 
-def vox_coordinates(coords, r_range,  grid_size = (20.0, 20.0, 20.0)):
-    '''
-    convert coordinates into voxel indices
-    '''
-
-
-
 
 def interleave(mat1, mat2, direction = 'c'):
     '''

@@ -125,7 +125,6 @@ class grinder(object):
         self.rev = not(self.rev)
 
 
-
     def activity_sorting(self, nbin = 40, sort = True, bg_shuffling = False, upsampling = 1):
         '''
         Inference of the datapoints belonging to peaks and calculate level and standard deviation of the background.
@@ -397,8 +396,8 @@ class grinder(object):
         save the dataset as the new file.
         '''
         if newpath is None:
-            newpath = global_datapath_ubn + self.basename + '_cleaned'
-        cleaned_dataset = {'coord':self.coord, 'signal':self.signal, 'annotation':self.neuron_label, 'masks':self.keys, 'raw_coord':self.raw_coord}
+            newpath = portable_datapath + self.basename + '_unsuppress'
+        cleaned_dataset = {'coord':self.coord, 'signal':self.signal, 'annotation':self.neuron_label, 'masks':self.keys, 'raw_coord':self.raw_coord, 'activity': self.activity}
         np.savez(newpath, **cleaned_dataset)
 
 
@@ -423,7 +422,7 @@ def main():
 
         ind = np.arange(grinder_core.NC)[acceptance]
         ind_comp = np.arange(grinder_core.NC)[~acceptance]
-        grinder_core.background_suppress(sup_coef = 0.0)
+        #grinder_core.background_suppress(sup_coef = 0.0)
         #grinder_core._trim_data_(acceptance)
         grinder_core.saveas()
 
