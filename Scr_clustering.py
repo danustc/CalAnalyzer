@@ -46,14 +46,14 @@ def scratch():
 
 
 def main():
-    data_list = glob.glob(global_datapath_ubn + 'Aug2018/*ref_lb_cleaned.npz')
+    data_list = glob.glob(global_datapath_ubn + 'Jul2017/*ref_lb_cleaned.npz')
     vol_img = tf.imread(global_datapath_ubn+'MAX_Aug23_B4_ref.tif')
     for data_path in data_list:
         #data_path = global_datapath_ubn + 'Aug23_2018_B4_ref_cleaned.npz'
         fish_flag = '_'.join(os.path.basename(data_path).split('_')[:3])
         print("Fish:", fish_flag)
         dff_data = np.load(data_path)
-        signal_test = dff_data['signal'][10:,:4500]
+        signal_test = dff_data['signal'][10:,:10000]
         ccc = sc.Corr_sc()
         ccc.load_data(signal_test)
         ccc.link_evaluate(sca = 1.05)

@@ -410,7 +410,7 @@ def main():
     '''
     some initial munging of the datasets.
     '''
-    data_list  = glob.glob(portable_datapath+ '*_ref_lb.npz')
+    data_list  = glob.glob(global_datapath_ubn+ '*_ref_lb*.npz')
     #vol_img = tf.imread(global_datapath_ubn+'MAX_Aug23_B4_ref.tif')
     grinder_core = grinder()
 
@@ -445,7 +445,7 @@ def act_sum():
 
     #plt.imshow(act_cube[4])
     #plt.show()
-    #anatomy_view.stack_viewer(act_cube)
+    anatomy_view.stack_viewer(act_cube)
     anatomy_view.animation(act_cube, fpath = 'WT')
     group_act = {'coords': coords, 'act': activity}
     np.savez('Jul_WT.npz', **group_act)
@@ -454,5 +454,5 @@ def act_sum():
 
 
 if __name__ == '__main__':
-    #act_sum()
-    main()
+    act_sum()
+    #main()

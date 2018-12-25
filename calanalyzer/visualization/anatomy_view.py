@@ -68,6 +68,7 @@ def next_slice(ax):
 
 def animation(volume, write = False, fpath = 'test.mp4'):
     NC = volume.shape[0]
+    print("NC:", NC)
     fig, ax = plt.subplots()
     ax = fig.axes[0]
     ax.imshow(volume[0])
@@ -83,7 +84,7 @@ def animation(volume, write = False, fpath = 'test.mp4'):
 
     else:
         for ii in range(NC):
-            im = plt.imshow(volume[ii], animated = True, title = fpath+ str(ii))
+            im = plt.imshow(volume[ii], animated = True )
             plt.tight_layout()
             fig.savefig(fpath + str(ii))
             ims.append([im])
