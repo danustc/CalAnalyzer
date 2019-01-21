@@ -37,17 +37,19 @@ class pipeline(object):
     def parse_data(self, raw_data):
         try:
             self.coord = raw_data['coord']
+        except KeyError:
+            self.coord = raw_data['xy']
             try:
                 self.rawf = raw_data['data']
             except KeyError:
                 print('No raw key value stored in the file! ')
+                
+       
+                print('The data has wrong format.')
+                self.coord = None
+                self.rawf = None
+                self.signal = None
                 sys.exit(1)
-        except KeyError:
-            print('The data has wrong format.')
-            self.coord = None
-            self.rawf = None
-            self.signal = None
-            sys.exit(1)
 
         print("raw data loaded.")
         return True
@@ -207,15 +209,24 @@ class pipeline(object):
         data = {'signal':self.signal, 'coord':self.coord}
 
         np.savez(save_path, **data)
+'''
 #------------------------------The main test function ---------------------
+'''
+'''
+Please don't change anything above this line
+'''
+
 
 def main_rawf():
     #data_folder = 'FB_resting_15min/Jul2017/'
     #data_folder = 'FB_resting_15min/Aug02_2018/'
     #raw_list = glob.glob(global_datapath_win +'*_merged.npz')
-    raw_list = glob.glob(portable_datapath+'Jul*fake.npz')
+    my_path = 'E:/2018-12-03/Dec03_2018_A4/A4_TS/'
+    
+    raw_list = glob.glob(my_path+ '*.npz')
+    #raw_list = glob.glob(portable_datapath+'Jul*fake.npz')
     for raw_file in raw_list:
-        acquisition_date = '_'.join(os.path.basename(raw_file).split('.')[0].split('_')[:-1])
+        acquisition_date = '_'.join(os.path.basename(raw_file).split('.')[0].split('_')[:])
         raw_data = np.load(raw_file)
         ppl = pipeline(raw_data)
         #ppl.location_cleaning()
@@ -223,19 +234,7 @@ def main_rawf():
         ppl.baseline_cleaning(bcut = 160.0)
         ppl.dff_calc(ft_width = 6, filt = True)
         ppl.valid_check(df_th = 6.)
-        ppl.save_cleaned_dff(portable_datapath + acquisition_date + '_fkdff')
-        print("Finished processing:", acquisition_date)
-
-def main_dff():
-    #data_folder = 'FB_resting_15min/Jun07_2018/'
-    dff_list = glob.glob(portable_datapath +data_folder+'*dff.npz')
-    ppl = pipeline()
-    for dff_file in dff_list:
-        acquisition_date = '_'.join(os.path.basename(dff_file).split('.')[0].split('_')[:-1])
-        ppl.load_dff(dff_file)
-        ppl.save_cleaned_dff(dff_file)
-        sg_file = global_datapath_ubn + data_folder + acquisition_date + '_sg'
-        sg_temp, sg_aver = ppl.frequency_representation(N_cut = 5000, tw = 300, kt = 10, kf = 0.25, save_file = sg_file)
+        ppl.save_cleaned_dff(my_path + acquisition_date + '_dff')
         print("Finished processing:", acquisition_date)
 
 
