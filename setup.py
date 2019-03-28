@@ -4,7 +4,7 @@ Big Question: Can I cythonize this?
 '''
 from setuptools import setup, find_packages
 
-setup(name = 'CalAnalyzer',
+setup(name = 'calanalyzer',
         version = '0.01',
         description = 'A small downstream analysis package',
         url = 'https://github.com/danustc/CalAnalyzer',
